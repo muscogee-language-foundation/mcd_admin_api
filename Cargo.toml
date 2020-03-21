@@ -1,0 +1,9 @@
+[package]
+name = "muscogee_creek_dictionary_admin"
+version = "0.1.0"
+authors = ["Adam Recvlohe <adam.recvlohe@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+actix-web = "2"
+actix-rt = "1"
