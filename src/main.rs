@@ -15,21 +15,39 @@ mod models;
 mod schema;
 
 use self::models::*;
-use self::schema::*;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[get("/api/entries")]
-async fn all_entries(pool: web::Data<DbPool>) -> impl Responder {
+async fn get_entries(pool: web::Data<DbPool>) -> impl Responder {
+    use self::schema::entries::dsl::*;
     let conn = pool.get().expect("couldn't get db connection from pool");
 
-    let query = entries::table.load::<Entry>(&conn);
+    let query = entries.load::<Entry>(&conn);
 
-    let entries: std::result::Result<Vec<models::Entry>, BlockingError<diesel::result::Error>> =
+    let results: Result<Vec<Entry>, BlockingError<diesel::result::Error>> =
         web::block(move || query).await;
 
-    match entries {
+    match results {
         Ok(words) => HttpResponse::Ok().json(words),
+        _ => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+#[get("/api/entries/{id}")]
+async fn get_entry(pool: web::Data<DbPool>, entry_id: web::Path<i32>) -> impl Responder {
+    use self::schema::entries::dsl::*;
+    let conn = pool.get().expect("couldn't get db connection from pool");
+
+    let query = entries
+        .filter(id.eq::<i32>(entry_id.to_string().parse().unwrap()))
+        .first::<Entry>(&conn);
+
+    let results: Result<Entry, BlockingError<diesel::result::Error>> =
+        web::block(move || query).await;
+
+    match results {
+        Ok(word) => HttpResponse::Ok().json(word),
         _ => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -49,8 +67,13 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Failed to create pool");
 
-    HttpServer::new(move || App::new().data(pool.clone()).service(all_entries))
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .data(pool.clone())
+            .service(get_entries)
+            .service(get_entry)
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
