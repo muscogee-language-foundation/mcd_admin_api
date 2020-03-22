@@ -1,4 +1,9 @@
+#[macro_use]
+extern crate diesel;
+
 use actix_web::{get, web, App, HttpServer, Responder};
+
+mod schema;
 
 #[get("/{id}/{name}/index.html")]
 async fn index(info: web::Path<(u32, String)>) -> impl Responder {

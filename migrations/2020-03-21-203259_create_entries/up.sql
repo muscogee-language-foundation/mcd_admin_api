@@ -1,0 +1,6 @@
+CREATE TABLE entries (
+  id SERIAL PRIMARY KEY,
+  creek VARCHAR NOT NULL,
+  english VARCHAR NOT NULL,
+  tag VARCHAR
+)
