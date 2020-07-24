@@ -3,20 +3,20 @@ extern crate diesel;
 extern crate bcrypt;
 extern crate dotenv;
 
+use actix_cors::Cors;
+use actix_web::error::BlockingError;
+use actix_web::middleware::Logger;
+use actix_web::{delete, get, post, put, web, App, HttpResponse, HttpServer, Responder};
 use bcrypt::verify;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use diesel::{delete as delete_entry, insert_into, update as update_entry};
 use dotenv::dotenv;
+use jsonwebtoken::{encode, EncodingKey, Header};
 use std::env;
 
-use actix_cors::Cors;
-use actix_web::error::BlockingError;
-use actix_web::middleware::Logger;
-use actix_web::{delete, get, patch, post, put, web, App, HttpResponse, HttpServer, Responder};
-use jsonwebtoken::{decode, encode, EncodingKey, Header, Validation};
-
+mod middleware;
 mod models;
 mod schema;
 
@@ -178,6 +178,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .wrap(middleware::Authorization)
             .wrap(
                 Cors::new()
                     .allowed_origin("http://localhost:3000")
