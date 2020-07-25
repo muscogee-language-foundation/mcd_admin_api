@@ -54,7 +54,7 @@ where
 
         if method == "GET" {
             Either::Left(self.service.call(req))
-        } else if path == "/login" {
+        } else if path == "/api/login" {
             Either::Left(self.service.call(req))
         } else {
             dotenv().ok();
