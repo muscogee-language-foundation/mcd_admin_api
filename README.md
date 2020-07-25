@@ -8,4 +8,4 @@
 - [x] Create, Update, Delete endpoints
 - [x] Authentication/Authorization
 - [x] Protect privileged endpoints
-- [] Deploy to digital ocean
+- [ ] Deploy to digital ocean
