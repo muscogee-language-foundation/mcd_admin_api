@@ -15,7 +15,15 @@ pub const THIRTY_DAYS_IN_MS: usize = 2592000000;
 pub fn connection_string() -> String {
     dotenv().ok();
 
-    return env::var("DATABASE_URL").expect("DATABASE_URL should be set");
+    let is_release = env::var("PROFILE").unwrap() == "release";
+
+    let db_var = if is_release {
+        "PROD_DATABASE_URL"
+    } else {
+        "DEV_DATABASE_URL"
+    };
+
+    return env::var(db_var).expect("DATABASE_URL should be set");
 }
 
 pub fn secret_string() -> String {
