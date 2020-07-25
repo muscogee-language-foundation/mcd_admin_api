@@ -167,7 +167,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 Cors::new()
                     .allowed_origin("http://localhost:3000")
-                    .allowed_methods(vec!["GET"])
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
                     .max_age(3600)
                     .finish(),
             )
