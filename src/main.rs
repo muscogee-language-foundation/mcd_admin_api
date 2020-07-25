@@ -50,7 +50,7 @@ async fn create_entry(pool: web::Data<DbPool>, form: web::Form<EntryFormData>) -
     let results = web::block(move || insert).await;
 
     match results {
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(_) => HttpResponse::Created().finish(),
         _ => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -87,7 +87,7 @@ async fn change_entry(
     let results = web::block(move || request).await;
 
     match results {
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(_) => HttpResponse::NoContent().finish(),
         _ => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -102,7 +102,7 @@ async fn remove_entry(pool: web::Data<DbPool>, entry_id: web::Path<i32>) -> impl
     let results = web::block(move || request).await;
 
     match results {
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(_) => HttpResponse::NoContent().finish(),
         _ => HttpResponse::InternalServerError().finish(),
     }
 }

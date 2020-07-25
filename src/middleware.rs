@@ -52,9 +52,7 @@ where
         let path = req.path();
         let method = &req.head().method;
 
-        if method == "GET" {
-            Either::Left(self.service.call(req))
-        } else if path == "/api/login" {
+        if method == "GET" || path == "/api/login" {
             Either::Left(self.service.call(req))
         } else {
             dotenv().ok();
@@ -77,7 +75,7 @@ where
                     }
                 }
                 None => Either::Right(ok(
-                    req.into_response(HttpResponse::Unauthorized().finish().into_body())
+                    req.into_response(HttpResponse::Forbidden().finish().into_body())
                 )),
             }
         }
