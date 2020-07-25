@@ -50,8 +50,11 @@ where
 
     fn call(&mut self, req: ServiceRequest) -> Self::Future {
         let path = req.path();
+        let method = &req.head().method;
 
-        if path == "/login" {
+        if method == "GET" {
+            Either::Left(self.service.call(req))
+        } else if path == "/login" {
             Either::Left(self.service.call(req))
         } else {
             dotenv().ok();

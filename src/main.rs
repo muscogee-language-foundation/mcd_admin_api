@@ -138,7 +138,7 @@ async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl 
                     .unwrap();
 
                     let response: LoginResponse = LoginResponse {
-                        token: token,
+                        token,
                         email: user_email_clone,
                     };
 
