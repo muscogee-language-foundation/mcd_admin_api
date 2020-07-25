@@ -74,7 +74,7 @@ where
                     }
                 }
                 None => Either::Right(ok(
-                    req.into_response(HttpResponse::InternalServerError().finish().into_body())
+                    req.into_response(HttpResponse::Unauthorized().finish().into_body())
                 )),
             }
         }

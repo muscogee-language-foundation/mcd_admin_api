@@ -12,13 +12,13 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use diesel::{delete as delete_entry, insert_into, update as update_entry};
-use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
-use std::env;
+use utils::{connection_pool, connection_string, secret_string, THIRTY_DAYS_IN_MS};
 
 mod middleware;
 mod models;
 mod schema;
+mod utils;
 
 use crate::models::*;
 use crate::schema::entries::dsl::{id as e_id, *};
@@ -28,7 +28,7 @@ type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[get("/api/entries")]
 async fn get_entries(pool: web::Data<DbPool>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
 
     let query = entries.load::<Entry>(&conn);
 
@@ -43,7 +43,7 @@ async fn get_entries(pool: web::Data<DbPool>) -> impl Responder {
 
 #[post("/api/entries")]
 async fn create_entry(pool: web::Data<DbPool>, form: web::Form<EntryFormData>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
 
     let insert = insert_into(entries).values(form.clone()).execute(&conn);
 
@@ -57,7 +57,7 @@ async fn create_entry(pool: web::Data<DbPool>, form: web::Form<EntryFormData>) -
 
 #[get("/api/entries/{id}")]
 async fn get_entry(pool: web::Data<DbPool>, entry_id: web::Path<i32>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
 
     let query = entries
         .filter(e_id.eq::<i32>(entry_id.to_string().parse().unwrap()))
@@ -78,7 +78,7 @@ async fn change_entry(
     entry_id: web::Path<i32>,
     form: web::Form<EntryFormData>,
 ) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
     let request =
         update_entry(entries.filter(e_id.eq::<i32>(entry_id.to_string().parse().unwrap())))
             .set(form.clone())
@@ -93,7 +93,7 @@ async fn change_entry(
 }
 #[delete("/api/entries/{id}")]
 async fn remove_entry(pool: web::Data<DbPool>, entry_id: web::Path<i32>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
 
     let request =
         delete_entry(entries.filter(e_id.eq::<i32>(entry_id.to_string().parse().unwrap())))
@@ -109,7 +109,7 @@ async fn remove_entry(pool: web::Data<DbPool>, entry_id: web::Path<i32>) -> impl
 
 #[post("/api/login")]
 async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl Responder {
-    let conn = pool.get().expect("couldn't get db connection from pool");
+    let conn = connection_pool(pool);
     let secret = secret_string();
 
     let query = users
@@ -124,12 +124,11 @@ async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl 
 
             match validate {
                 Ok(_) => {
-                    let thirty_days_in_ms = 2592000000;
                     let user_email_clone = user.email.clone();
 
                     let claims = Claims {
                         sub: user.email,
-                        exp: thirty_days_in_ms,
+                        exp: THIRTY_DAYS_IN_MS,
                     };
                     let token = encode(
                         &Header::default(),
@@ -145,23 +144,11 @@ async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl 
 
                     HttpResponse::Ok().json(response)
                 }
-                _ => HttpResponse::Forbidden().finish(),
+                _ => HttpResponse::Unauthorized().finish(),
             }
         }
-        _ => HttpResponse::BadRequest().finish(),
+        _ => HttpResponse::InternalServerError().finish(),
     }
-}
-
-fn connection_string() -> String {
-    dotenv().ok();
-
-    return env::var("DATABASE_URL").expect("DATABASE_URL should be set");
-}
-
-fn secret_string() -> String {
-    dotenv().ok();
-
-    return env::var("SECRET").expect("SECRET should be set");
 }
 
 #[actix_rt::main]

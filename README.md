@@ -7,5 +7,5 @@
 - [x] Read endpoints (get entries, get entry)
 - [x] Create, Update, Delete endpoints
 - [x] Authentication/Authorization
-- [] Protect privileged endpoints
+- [x] Protect privileged endpoints
 - [] Deploy to digital ocean
