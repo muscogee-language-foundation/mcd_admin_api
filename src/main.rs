@@ -124,10 +124,8 @@ async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl 
 
             match validate {
                 Ok(_) => {
-                    let user_email_clone = user.email.clone();
-
                     let claims = Claims {
-                        sub: user.email,
+                        sub: user.email.clone(),
                         exp: THIRTY_DAYS_IN_MS,
                     };
                     let token = encode(
@@ -139,7 +137,7 @@ async fn login(pool: web::Data<DbPool>, form: web::Form<LoginFormData>) -> impl 
 
                     let response: LoginResponse = LoginResponse {
                         token,
-                        email: user_email_clone,
+                        email: user.email.clone(),
                     };
 
                     HttpResponse::Ok().json(response)
