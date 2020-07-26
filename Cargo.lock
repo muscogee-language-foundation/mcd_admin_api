@@ -1005,6 +1005,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 
 [[package]]
+name = "mcd_admin_api"
+version = "0.1.0"
+dependencies = [
+ "actix-cors",
+ "actix-rt",
+ "actix-service",
+ "actix-web",
+ "bcrypt",
+ "diesel",
+ "dotenv",
+ "env_logger",
+ "futures",
+ "jsonwebtoken",
+ "serde",
+]
+
+[[package]]
 name = "memchr"
 version = "2.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1065,23 +1082,6 @@ dependencies = [
  "net2",
  "winapi 0.2.8",
  "ws2_32-sys",
-]
-
-[[package]]
-name = "muscogee_creek_dictionary_admin"
-version = "0.1.0"
-dependencies = [
- "actix-cors",
- "actix-rt",
- "actix-service",
- "actix-web",
- "bcrypt",
- "diesel",
- "dotenv",
- "env_logger",
- "futures",
- "jsonwebtoken",
- "serde",
 ]
 
 [[package]]

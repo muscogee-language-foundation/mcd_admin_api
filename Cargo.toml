@@ -1,5 +1,5 @@
 [package]
-name = "muscogee_creek_dictionary_admin"
+name = "mcd_admin_api"
 version = "0.1.0"
 authors = ["Adam Recvlohe <adam.recvlohe@gmail.com>"]
 edition = "2018"
